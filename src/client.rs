@@ -2256,7 +2256,7 @@ pub mod fast {
                                                                         &mut res,
                                                                         connection_time,
                                                                     );
-
+                                                                    println!("{:#?}", res); // print every request
                                                                     result_data.push(res);
 
                                                                     if is_cancel || is_reconnect {
@@ -2350,6 +2350,7 @@ pub mod fast {
                                         while counter.fetch_sub(1, Ordering::Relaxed) > 0 {
                                             let res = client.work_http1(&mut client_state).await;
                                             let is_cancel = is_cancel_error(&res);
+                                            println!("{:#?}", res); // print every request
                                             result_data.push(res);
                                             if is_cancel {
                                                 break;
@@ -2358,6 +2359,7 @@ pub mod fast {
                                     } => {}
                                 }
                                 report_tx.send(result_data).unwrap();
+                                
                             }));
                         }
                         rt.block_on(local);
@@ -2473,7 +2475,7 @@ pub mod fast {
                                                                     &mut res,
                                                                     connection_time,
                                                                 );
-
+                                                                println!("{:#?}", res); // print every request
                                                                 result_data.push(res);
 
                                                                 if is_cancel || is_reconnect {
@@ -2564,6 +2566,7 @@ pub mod fast {
                                     loop {
                                         let res = client.work_http1(&mut client_state).await;
                                         let is_cancel = is_cancel_error(&res);
+                                        println!("{:#?}", res); // print every request
                                         result_data.push(res);
                                         if is_cancel || is_end.load(Ordering::Relaxed) {
                                             break;
