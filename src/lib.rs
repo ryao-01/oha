@@ -714,6 +714,7 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
                 Box::pin(async move {
                     let mut res = ResultData::default();
                     for r in result_rx {
+                        println!("{:#?}", r);
                         res.merge(r);
                     }
                     (res, print_config)
@@ -743,6 +744,7 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
                 Box::pin(async move {
                     let mut res = ResultData::default();
                     for r in result_rx {
+                        println!("{:#?}", r);
                         res.merge(r);
                     }
                     (res, print_config)
@@ -780,6 +782,7 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
                         let config = ctrl_c.await.unwrap();
                         let mut all = ResultData::default();
                         while let Ok(res) = result_rx.recv() {
+                            println!("{:#?}", res);
                             all.push(res);
                         }
                         (all, config)
