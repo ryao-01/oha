@@ -730,6 +730,8 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
                 // Use optimized worker of no_tui mode.
                 let (result_tx, result_rx) = kanal::unbounded();
 
+                // println!("in workmode work until");
+
                 client::fast::work_until(
                     client.clone(),
                     result_tx,
@@ -740,9 +742,13 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
                 )
                 .await;
 
+                // println!("work finished");
+
                 Box::pin(async move {
                     let mut res = ResultData::default();
                     for r in result_rx {
+                        //println!("Results: AHHHHH");
+                        println!("{:#?}", r); // print every result
                         res.merge(r);
                     }
                     (res, print_config)
@@ -752,6 +758,8 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
                 let (result_tx, result_rx) = kanal::unbounded();
                 let data_collector = if no_tui {
                     // When `--no-tui` is enabled, just collect all data.
+
+                    // println!("in mode workmode thing");
 
                     let token = tokio_util::sync::CancellationToken::new();
                     let result_rx_ctrl_c = result_rx.clone();
@@ -774,6 +782,8 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
 
                         }
                     });
+
+                    // println!("after a bit in the func");
 
                     Box::pin(async move {
                         token.cancel();
@@ -903,6 +913,8 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
 
     let duration = start.elapsed();
     let (res, print_config) = data_collect_future.await;
+
+    // println!("Printing summary here!!");
 
     printer::print_result(print_config, start, &res, duration)?;
 
