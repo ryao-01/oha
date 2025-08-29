@@ -732,6 +732,38 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
 
                 // println!("in workmode work until");
 
+                  // Spawn periodic summary task
+            
+                // let result_rx_periodic = result_rx.clone();
+
+                // tokio::spawn(async move {
+                //     let mut interval = tokio::time::interval(std::time::Duration::from_secs(5));
+                //     let mut all: ResultData = Default::default();
+
+                //    loop {
+                //         interval.tick().await;
+
+                //         // Collect whatever results are available
+                //         let mut buf = Vec::new();
+                //         let _ = result_rx_periodic.drain_into(&mut buf); // non-blocking
+
+                //         for r in buf {
+                //             all.push(r); // push single results
+                //         }
+
+                //         println!("--- Periodic Summary ---");
+                //         let periodic_config = PrintConfig {
+                //             output: Box::new(std::io::stdout()),
+                //             mode: print_config.mode,
+                //             disable_style: print_config.disable_style,
+                //             stats_success_breakdown: print_config.stats_success_breakdown,
+                //             time_unit: print_config.time_unit,
+                //         };
+                //         let _ = printer::print_result(periodic_config, start, &all, start.elapsed());
+                //     }
+                // });
+
+
                 client::fast::work_until(
                     client.clone(),
                     result_tx,
