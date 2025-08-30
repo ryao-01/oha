@@ -747,20 +747,18 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
                                 let mut all: ResultData = Default::default();
                                 let mut buf = Vec::new();
                                 let _ = result_rx_periodic.drain_into(&mut buf);
-
-                                if(!buf.is_empty()){
-                                    for res in buf {
-                                        all.merge(res);
-                                    }
-                                    let config = PrintConfig {
-                                            output: Box::new(std::io::stdout()),
-                                            mode,
-                                            disable_style,
-                                            stats_success_breakdown,
-                                            time_unit,
-                                    };
-                                    let _ = printer::print_result(config, start, &all, start.elapsed());
+                              
+                                for res in buf {
+                                    all.merge(res);
                                 }
+                                let config = PrintConfig {
+                                        output: Box::new(std::io::stdout()),
+                                        mode,
+                                        disable_style,
+                                        stats_success_breakdown,
+                                        time_unit,
+                                };
+                                let _ = printer::print_result(config, start, &all, start.elapsed());
                             }
                         }
                     }
