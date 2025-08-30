@@ -1,0 +1,26 @@
+ARG RUST_VERSION=1.85
+FROM rust:${RUST_VERSION} AS build
+# WORKDIR /app
+# COPY . /app
+
+RUN apt-get update && apt-get install -y cmake git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# RUN git clone https://github.com/ryao-01/oha.git
+COPY . /oha
+WORKDIR /oha
+RUN cargo install --path . && rm -rf /oha/target/release/build /oha/target/release/deps 
+
+
+# FROM rust:${RUST_VERSION}
+
+# ---- runtime stage ----
+# FROM debian:bookworm-slim
+
+# Copy the oha binary from build stage
+# COPY --from=build /usr/local/cargo/bin/oha /usr/local/bin/oha
+
+# Set oha as the default entrypoint
+# ENTRYPOINT ["oha"]
+# CMD ["--help"]

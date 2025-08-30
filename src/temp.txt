@@ -1,0 +1,6 @@
+in the spicedinst container:
+./target/debug/testoperator run load -s /spiceai/target/debug/spiced -p ./test/spicepods/tpch/sf1/federated/duckdb.yaml -d ./data --duration 300 --disable-progress-bars --query-set tpch --concurrency 8
+
+in the oha container:
+oha -c 8 -z 60s -m POST -H "Content-Type: text/plain" -d "SELECT * FROM partsupp" http://test-operator:8090/v1/sql --no-tui --output-format json
+oha -c 8 -z 10s -m POST -H "Content-Type: text/plain" -d "SELECT * FROM partsupp" http://test-operator:8090/v1/sql --no-tui --output-format json

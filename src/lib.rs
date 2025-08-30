@@ -730,8 +730,43 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
                 // Use optimized worker of no_tui mode.
                 let (result_tx, result_rx) = kanal::unbounded();
 
-                // println!("in workmode work until");
+                // Extract config fields before moving into async blocks
+                let mode = print_config.mode;
+                let disable_style = print_config.disable_style;
+                let stats_success_breakdown = print_config.stats_success_breakdown;
+                let time_unit = print_config.time_unit;
 
+                // Add periodic printing (following ctrl_c pattern)
+                let result_rx_periodic = result_rx.clone();                
+                let periodic_printer = tokio::spawn(async move {
+                    let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(5));
+                    
+                    loop {
+                        tokio::select! {
+                            _ = interval.tick() => {
+                                let mut all: ResultData = Default::default();
+                                let mut buf = Vec::new();
+                                let _ = result_rx_periodic.drain_into(&mut buf);
+
+                                if(!buf.is_empty()){
+                                    for res in buf {
+                                        all.merge(res);
+                                    }
+                                    let config = PrintConfig {
+                                            output: Box::new(std::io::stdout()),
+                                            mode,
+                                            disable_style,
+                                            stats_success_breakdown,
+                                            time_unit,
+                                    };
+                                    let _ = printer::print_result(config, start, &all, start.elapsed());
+                                }
+                            }
+                        }
+                    }
+                });
+
+                println!("in workmode work until - starting work!");
                 client::fast::work_until(
                     client.clone(),
                     result_tx,
@@ -742,16 +777,12 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
                 )
                 .await;
 
-                // println!("work finished");
-
                 Box::pin(async move {
-                    let mut res = ResultData::default();
-                    for r in result_rx {
-                        //println!("Results: AHHHHH");
-                        println!("{:#?}", r); // print every result
-                        res.merge(r);
-                    }
-                    (res, print_config)
+
+                   // Stop the periodic printer when done
+                    periodic_printer.abort();
+
+                    (ResultData::default(), print_config)
                 })
             }
             mode => {
@@ -914,9 +945,11 @@ pub async fn run(mut opts: Opts) -> anyhow::Result<()> {
     let duration = start.elapsed();
     let (res, print_config) = data_collect_future.await;
 
+    println!("finished work!!");
+
     // println!("Printing summary here!!");
 
-    printer::print_result(print_config, start, &res, duration)?;
+    //printer::print_result(print_config, start, &res, duration)?;
 
     if let Some(db_url) = opts.db_url {
         eprintln!("Storing results to {db_url}");
